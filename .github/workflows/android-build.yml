@@ -54,6 +54,7 @@ jobs:
           PATH: ${{ runner.temp }}/android-sdk/cmdline-tools/latest/bin:${{ runner.temp }}/android-sdk/platform-tools:${{ env.PATH }}
         run: |
           set -e
+          echo "sdk.dir=${{ runner.temp }}/android-sdk" > local.properties
           if [ -f ./gradlew ]; then
             chmod +x ./gradlew
             ./gradlew :app:assembleDebug --no-daemon
