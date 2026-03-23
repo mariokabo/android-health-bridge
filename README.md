@@ -1,8 +1,6 @@
 # AirHealth
 
-Android app (Kotlin) to read vitals from Health Connect and send them automatically to your Google Apps Script webhook.
-
-Developer: Maru Falts
+Android app (Kotlin) by **Maru Falts** to read vitals from Health Connect and send them automatically to your Google Apps Script webhook.
 
 ## Features
 - Read latest vitals from Health Connect:
