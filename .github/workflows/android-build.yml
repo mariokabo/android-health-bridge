@@ -57,9 +57,9 @@ jobs:
           echo "sdk.dir=${{ runner.temp }}/android-sdk" > local.properties
           if [ -f ./gradlew ]; then
             chmod +x ./gradlew
-            ./gradlew :app:assembleDebug --no-daemon
+            ./gradlew :app:assembleDebug --no-daemon --stacktrace --info | tee build.log
           else
-            gradle :app:assembleDebug --no-daemon
+            gradle :app:assembleDebug --no-daemon --stacktrace --info | tee build.log
           fi
 
       - name: Upload APK Artifact
@@ -67,3 +67,10 @@ jobs:
         with:
           name: app-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-build-log
+          path: android-health-bridge/build.log
