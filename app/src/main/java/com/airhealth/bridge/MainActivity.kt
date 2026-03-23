@@ -157,8 +157,8 @@ private fun BridgeScreen(
 
         OutlinedTextField(
             value = intervalMinutes.toString(),
-            onValueChange = { intervalMinutes = it.toLongOrNull()?.coerceAtLeast(15L) ?: 15L },
-            label = { Text("Sync interval (minutes, min 15)") },
+            onValueChange = { intervalMinutes = it.toLongOrNull()?.coerceAtLeast(5L) ?: 5L },
+            label = { Text("Sync interval (minutes, min 5)") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -170,6 +170,7 @@ private fun BridgeScreen(
                 prefs.webhookUrl = webhookUrl
                 prefs.apiToken = apiToken
                 prefs.syncIntervalMinutes = intervalMinutes
+                prefs.autoSyncEnabled = true
                 WorkScheduler.schedulePeriodic(context, intervalMinutes)
                 statusText = "تم الحفظ وتفعيل المزامنة الدورية"
                 Toast.makeText(context, "Saved + Auto Sync Enabled", Toast.LENGTH_SHORT).show()

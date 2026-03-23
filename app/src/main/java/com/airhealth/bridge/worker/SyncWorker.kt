@@ -22,20 +22,29 @@ class SyncWorker(
         val token = prefs.apiToken
         val travelerId = prefs.travelerId
 
+        fun scheduleNextIfEnabled() {
+            if (prefs.autoSyncEnabled) {
+                WorkScheduler.schedulePeriodic(applicationContext, prefs.syncIntervalMinutes)
+            }
+        }
+
         if (webhook.isBlank() || token.isBlank() || travelerId.isBlank()) {
             prefs.lastSyncStatus = "فشل: إعدادات ناقصة (Webhook/Token/Traveler)"
+            scheduleNextIfEnabled()
             return Result.failure()
         }
 
         val manager = HealthConnectManager(applicationContext)
         if (!manager.hasAllPermissions()) {
             prefs.lastSyncStatus = "مؤجل: الصلاحيات غير مكتملة"
+            scheduleNextIfEnabled()
             return Result.retry()
         }
 
         val reading = runCatching { manager.readLatestVitals() }
             .getOrElse {
                 prefs.lastSyncStatus = "مؤجل: فشل قراءة Health Connect"
+                scheduleNextIfEnabled()
                 return Result.retry()
             }
 
@@ -54,11 +63,13 @@ class SyncWorker(
             queue.saveAll(emptyList())
             prefs.lastSyncStatus = "تمت المزامنة بنجاح (${pending.size} قياس)"
             prefs.lastSyncAtIso = Instant.now().toString()
+            scheduleNextIfEnabled()
             Result.success()
         } else {
             queue.saveAll(unsent)
             prefs.lastSyncStatus = "مؤجل: بقي ${unsent.size} قياس في الطابور"
             prefs.lastSyncAtIso = Instant.now().toString()
+            scheduleNextIfEnabled()
             Result.retry()
         }
     }

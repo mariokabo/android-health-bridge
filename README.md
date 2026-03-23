@@ -30,7 +30,7 @@ Android app (Kotlin) to read vitals from Health Connect and send them automatica
    - Traveler ID (e.g. `TRV_12345`)
    - Webhook URL (from your Apps Script web app)
    - API Token (`SECRET_TOKEN` value from apps-script.gs)
-   - Interval (minimum 15 min)
+  - Interval (minimum 5 min)
 4. Tap **حفظ + تفعيل Auto Sync**.
 5. Optional: tap **Sync Now** once to test immediate send.
 
@@ -51,7 +51,8 @@ Android app (Kotlin) to read vitals from Health Connect and send them automatica
 ```
 
 ## Notes
-- WorkManager periodic jobs on Android are not real-time; minimum interval is 15 minutes.
+- Sync every 5 minutes is supported via chained one-time work.
+- Android battery optimization/doze may delay some runs on certain devices.
 - If your watch writes data to Health Connect, this app will pick it up in each sync window.
 - For most devices, Health Connect package is:
   - `com.google.android.apps.healthdata`

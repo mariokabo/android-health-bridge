@@ -2,21 +2,19 @@ package com.airhealth.bridge.worker
 
 import android.content.Context
 import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
 
 object WorkScheduler {
-    private const val UNIQUE_PERIODIC_SYNC = "airhealth_periodic_sync"
+    private const val UNIQUE_ONE_TIME_SYNC = "airhealth_one_time_sync"
 
     fun schedulePeriodic(context: Context, intervalMinutes: Long) {
-        val periodic = PeriodicWorkRequestBuilder<SyncWorker>(
-            intervalMinutes.coerceAtLeast(15),
-            TimeUnit.MINUTES
-        )
+        val delay = intervalMinutes.coerceAtLeast(5)
+        val oneTime = OneTimeWorkRequestBuilder<SyncWorker>()
+            .setInitialDelay(delay, TimeUnit.MINUTES)
             .setConstraints(
                 Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -24,10 +22,10 @@ object WorkScheduler {
             )
             .build()
 
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            UNIQUE_PERIODIC_SYNC,
-            ExistingPeriodicWorkPolicy.UPDATE,
-            periodic
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            UNIQUE_ONE_TIME_SYNC,
+            ExistingWorkPolicy.REPLACE,
+            oneTime
         )
     }
 
