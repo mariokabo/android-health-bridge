@@ -106,7 +106,8 @@ private fun BridgeScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text("AirHealth Android Bridge", style = MaterialTheme.typography.headlineSmall)
+        Text("AirHealth", style = MaterialTheme.typography.headlineSmall)
+        Text("Developer: Maru Falts")
         Text("ينسخ العلامات الحيوية من Health Connect إلى Google Apps Script بشكل تلقائي.")
 
         Card(modifier = Modifier.fillMaxWidth()) {

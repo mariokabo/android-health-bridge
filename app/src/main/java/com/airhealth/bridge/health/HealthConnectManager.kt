@@ -13,7 +13,6 @@ import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import com.airhealth.bridge.models.VitalReading
 import java.time.Instant
-import kotlin.math.roundToInt
 
 class HealthConnectManager(private val context: Context) {
     private val healthClient by lazy { HealthConnectClient.getOrCreate(context) }
@@ -65,7 +64,7 @@ class HealthConnectManager(private val context: Context) {
         )
         val latestRecord = res.records.maxByOrNull { it.endTime }
         val latestSample = latestRecord?.samples?.maxByOrNull { it.time }
-        return latestSample?.beatsPerMinute?.roundToInt()
+        return latestSample?.beatsPerMinute?.let { parseIntAny_(it) }
     }
 
     private suspend fun latestSpo2(start: Instant, end: Instant): Int? {
@@ -76,7 +75,7 @@ class HealthConnectManager(private val context: Context) {
             )
         )
         val latest = res.records.maxByOrNull { it.time }
-        return latest?.percentage?.times(100.0)?.roundToInt()
+        return latest?.percentage?.let { parseSpo2Percent_(it) }
     }
 
     private suspend fun latestRespiration(start: Instant, end: Instant): Int? {
@@ -87,7 +86,7 @@ class HealthConnectManager(private val context: Context) {
             )
         )
         val latest = res.records.maxByOrNull { it.time }
-        return latest?.rate?.roundToInt()
+        return latest?.rate?.let { parseIntAny_(it) }
     }
 
     private suspend fun summedSteps(start: Instant, end: Instant): Long? {
@@ -109,5 +108,40 @@ class HealthConnectManager(private val context: Context) {
 
     companion object {
         const val HEALTH_CONNECT_PACKAGE = "com.google.android.apps.healthdata"
+    }
+
+    private fun parseIntAny_(value: Any?): Int? {
+        val v = value ?: return null
+        return when (v) {
+            is Int -> v
+            is Long -> v.toInt()
+            is Float -> v.toInt()
+            is Double -> v.toInt()
+            is Number -> v.toInt()
+            else -> Regex("-?\\d+(?:\\.\\d+)?").find(v.toString())
+                ?.value
+                ?.toDoubleOrNull()
+                ?.toInt()
+        }
+    }
+
+    private fun parseSpo2Percent_(value: Any?): Int? {
+        val d = parseDoubleAny_(value) ?: return null
+        val pct = if (d <= 1.0) d * 100.0 else d
+        return pct.toInt().coerceIn(0, 100)
+    }
+
+    private fun parseDoubleAny_(value: Any?): Double? {
+        val v = value ?: return null
+        return when (v) {
+            is Double -> v
+            is Float -> v.toDouble()
+            is Long -> v.toDouble()
+            is Int -> v.toDouble()
+            is Number -> v.toDouble()
+            else -> Regex("-?\\d+(?:\\.\\d+)?").find(v.toString())
+                ?.value
+                ?.toDoubleOrNull()
+        }
     }
 }
