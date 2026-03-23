@@ -75,6 +75,7 @@ You can build APK fully from GitHub web UI:
 6. Transfer `app-debug.apk` to phone and install.
 
 Phone install notes:
-- Enable **Install unknown apps** for your browser/files app.
-- Open APK and install.
+
+<!-- CI trigger -->
+<!-- Triggered: 2026-03-23 by automated CI ping to start workflow -->
 
