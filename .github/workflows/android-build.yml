@@ -40,13 +40,24 @@ jobs:
           cd "$ANDROID_SDK_ROOT"
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline.zip
           unzip -q cmdline.zip -d cmdline-tools
-          # Unzipping creates cmdline-tools/cmdline-tools; move that folder to 'latest'
           mkdir -p cmdline-tools/latest
-          mv cmdline-tools/cmdline-tools cmdline-tools/latest
+          # Handle different zip layouts: either cmdline-tools/cmdline-tools/... or cmdline-tools/...
+          if [ -d cmdline-tools/cmdline-tools ]; then
+            mv cmdline-tools/cmdline-tools/* cmdline-tools/latest/ || true
+          else
+            mv cmdline-tools/* cmdline-tools/latest/ || true
+          fi
           export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH"
-          # Use full path to sdkmanager to avoid 'command not found'
-          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses || true
-          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          # Ensure sdkmanager is executable and present
+          if [ -f "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" ]; then
+            chmod +x "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+            "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root=$ANDROID_SDK_ROOT --licenses || true
+            "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          else
+            echo "sdkmanager not found under $ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >&2
+            ls -la "$ANDROID_SDK_ROOT/cmdline-tools" || true
+            exit 1
+          fi
 
       - name: Build Debug APK
         working-directory: android-health-bridge
