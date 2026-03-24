@@ -36,6 +36,11 @@ jobs:
           set -e
           sudo apt-get update -y
           sudo apt-get install -y wget unzip lib32stdc++6 lib32z1 gradle coreutils findutils procps gawk util-linux
+          # Debug: verify utilities are present
+          echo "which uname:" && which uname || true
+          echo "uname -a:" && uname -a || true
+          echo "which xargs:" && which xargs || true
+          echo "xargs --version:" && xargs --version || true
           mkdir -p "$ANDROID_SDK_ROOT"
           cd "$ANDROID_SDK_ROOT"
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline.zip
