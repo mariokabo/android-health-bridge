@@ -35,7 +35,7 @@ jobs:
         run: |
           set -e
           sudo apt-get update -y
-          sudo apt-get install -y wget unzip lib32stdc++6 lib32z1 gradle
+          sudo apt-get install -y wget unzip lib32stdc++6 lib32z1 gradle coreutils findutils
           mkdir -p "$ANDROID_SDK_ROOT"
           cd "$ANDROID_SDK_ROOT"
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline.zip
