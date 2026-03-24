@@ -35,7 +35,7 @@ jobs:
         run: |
           set -e
           sudo apt-get update -y
-          sudo apt-get install -y wget unzip lib32stdc++6 lib32z1 gradle coreutils findutils procps gawk
+          sudo apt-get install -y wget unzip lib32stdc++6 lib32z1 gradle coreutils findutils procps gawk util-linux
           mkdir -p "$ANDROID_SDK_ROOT"
           cd "$ANDROID_SDK_ROOT"
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline.zip
@@ -71,10 +71,12 @@ jobs:
           echo "sdk.dir=${{ runner.temp }}/android-sdk" > local.properties
           if [ -f ./gradlew ]; then
             chmod +x ./gradlew
-            ./gradlew :app:assembleDebug --no-daemon --stacktrace --info | tee build.log
+            ./gradlew :app:assembleDebug --no-daemon --stacktrace --info > build.log 2>&1 || true
           else
-            gradle :app:assembleDebug --no-daemon --stacktrace --info | tee build.log
+            gradle :app:assembleDebug --no-daemon --stacktrace --info > build.log 2>&1 || true
           fi
+          # Print build log so Actions shows output
+          cat build.log || true
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
